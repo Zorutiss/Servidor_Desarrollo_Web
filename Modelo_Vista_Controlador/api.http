@@ -1,0 +1,50 @@
+### Crear una nueva película
+POST http://localhost:3000/api/movies
+Content-Type: application/json
+{
+  "title": "Inception",
+  "director": "Christopher Nolan",
+  "year": 2010,
+  "genre": "scifi",
+  "copies": 10,
+  "availableCopies": 10,
+  "timesRented": 0,
+  "cover": "http://example.com/cover.jpg"
+}
+
+
+### Obtener todas las películas
+GET http://localhost:3000/api/movies/
+
+### Obtener una película por ID
+GET http://localhost:3000/api/movies/69a0af99b3874b53a7a90a6e
+
+### Actualizar una película
+PUT http://localhost:3000/api/movies/69a0af99b3874b53a7a90a6e
+Content-Type: application/json
+
+{
+  "title": "Inception 2",
+  "director": "Christopher Nolan",
+  "year": 2022,
+  "genre": "scifi",
+  "copies": 12,
+  "availableCopies": 12
+}
+
+### Eliminar una película
+DELETE http://localhost:3000/api/movies/69a0aeb1b3874b53a7a90a5e
+
+### Alquilar una película
+POST http://localhost:3000/api/movies/69a0af99b3874b53a7a90a6e/rent
+
+### Devolver una película
+POST http://localhost:3000/api/movies/69a0af99b3874b53a7a90a6e/return
+
+### Subir carátula de película
+PATCH http://localhost:3000/api/movies/69a0ae4773f3910368cd47b8/cover
+Content-Type: multipart/form-data
+<R.jpg>
+
+### Obtener carátula de película
+GET http://localhost:3000/api/movies/69a0af99b3874b53a7a90a6e/cover
