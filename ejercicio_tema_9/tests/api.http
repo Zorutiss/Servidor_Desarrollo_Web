@@ -1,0 +1,254 @@
+### ============================================================
+### Biblioteca API - Tests con REST Client (VS Code)
+### Instala la extensión "REST Client" de Huachao Mao
+### ============================================================
+
+@baseUrl = http://localhost:3000/api
+@adminToken = REEMPLAZA_CON_TU_TOKEN_ADMIN
+@userToken = REEMPLAZA_CON_TU_TOKEN_USER
+@librarianToken = REEMPLAZA_CON_TU_TOKEN_LIBRARIAN
+
+### ============================================================
+### AUTH
+### ============================================================
+
+### Registrar usuario normal
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "nuevo@test.com",
+  "name": "Nuevo Usuario",
+  "password": "password123"
+}
+
+###
+
+### Registrar admin (para pruebas)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "admin@test.com",
+  "name": "Admin Test",
+  "password": "admin1234",
+  "role": "ADMIN"
+}
+
+###
+
+### Registrar bibliotecario
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "librarian@test.com",
+  "name": "Bibliotecario Test",
+  "password": "librarian1234",
+  "role": "LIBRARIAN"
+}
+
+###
+
+### Login admin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@biblioteca.com",
+  "password": "admin1234"
+}
+
+###
+
+### Login usuario normal
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "lector1@biblioteca.com",
+  "password": "user1234"
+}
+
+###
+
+### Login bibliotecario
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "biblioteca@biblioteca.com",
+  "password": "librarian1234"
+}
+
+###
+
+### Perfil propio
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{userToken}}
+
+### ============================================================
+### BOOKS
+### ============================================================
+
+### Listar todos los libros
+GET {{baseUrl}}/books
+
+###
+
+### Listar con filtros
+GET {{baseUrl}}/books?genre=Fiction&available=true&page=1&limit=5
+
+###
+
+### Buscar por título/autor
+GET {{baseUrl}}/books?search=orwell
+
+###
+
+### Obtener libro por ID
+GET {{baseUrl}}/books/1
+
+###
+
+### Crear libro (requiere LIBRARIAN o ADMIN)
+POST {{baseUrl}}/books
+Content-Type: application/json
+Authorization: Bearer {{librarianToken}}
+
+{
+  "isbn": "978-84-376-0494-7",
+  "title": "La Casa de los Espíritus",
+  "author": "Isabel Allende",
+  "genre": "Magic Realism",
+  "description": "Una saga familiar que abarca varias generaciones.",
+  "publishedYear": 1982,
+  "copies": 4
+}
+
+###
+
+### Actualizar libro (requiere LIBRARIAN o ADMIN)
+PUT {{baseUrl}}/books/1
+Content-Type: application/json
+Authorization: Bearer {{librarianToken}}
+
+{
+  "copies": 10,
+  "available": 10,
+  "description": "Descripción actualizada del libro."
+}
+
+###
+
+### Eliminar libro (solo ADMIN)
+DELETE {{baseUrl}}/books/1
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Estadísticas (BONUS - LIBRARIAN/ADMIN)
+GET {{baseUrl}}/books/stats
+Authorization: Bearer {{adminToken}}
+
+### ============================================================
+### LOANS
+### ============================================================
+
+### Mis préstamos
+GET {{baseUrl}}/loans
+Authorization: Bearer {{userToken}}
+
+###
+
+### Todos los préstamos (LIBRARIAN/ADMIN)
+GET {{baseUrl}}/loans/all
+Authorization: Bearer {{librarianToken}}
+
+###
+
+### Todos los préstamos activos
+GET {{baseUrl}}/loans/all?status=ACTIVE
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Solicitar préstamo
+POST {{baseUrl}}/loans
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "bookId": 1
+}
+
+###
+
+### Devolver libro (reemplaza :id con el ID del préstamo)
+PUT {{baseUrl}}/loans/1/return
+Authorization: Bearer {{userToken}}
+
+### ============================================================
+### REVIEWS
+### ============================================================
+
+### Reseñas de un libro (público)
+GET {{baseUrl}}/books/1/reviews
+
+###
+
+### Crear reseña (solo si has devuelto el libro)
+POST {{baseUrl}}/books/1/reviews
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "rating": 5,
+  "comment": "Una obra imprescindible. La recomiendo a todos."
+}
+
+###
+
+### Eliminar mi reseña
+DELETE {{baseUrl}}/reviews/1
+Authorization: Bearer {{userToken}}
+
+### ============================================================
+### CASOS DE ERROR
+### ============================================================
+
+### Error: préstamo sin token
+POST {{baseUrl}}/loans
+Content-Type: application/json
+
+{
+  "bookId": 1
+}
+
+###
+
+### Error: crear libro sin permisos (usuario normal)
+POST {{baseUrl}}/books
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "isbn": "000-test",
+  "title": "Test",
+  "author": "Test",
+  "genre": "Test",
+  "publishedYear": 2024,
+  "copies": 1
+}
+
+###
+
+### Error: reseña sin haber devuelto el libro
+POST {{baseUrl}}/books/2/reviews
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "rating": 4,
+  "comment": "Intentando reseñar sin haberlo devuelto"
+}
