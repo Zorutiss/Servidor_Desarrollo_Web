@@ -1,0 +1,198 @@
+@baseUrl = http://localhost:3000/api
+@accessToken = accesToken
+@refreshToken = refreshToken
+
+### 1) REGISTRO
+### Registrar usuario nuevo
+POST {{baseUrl}}/user/register
+Content-Type: application/json
+
+{
+  "email": "usuario@test.com",
+  "password": "password123"
+}
+
+### 2) VALIDACIÓN DEL EMAIL
+### Validar email con código de 6 dígitos
+PUT {{baseUrl}}/user/validation
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "code": "699725"
+}
+
+### 3) LOGIN
+
+### Login con credenciales
+POST {{baseUrl}}/user/login
+Content-Type: application/json
+
+{
+  "email": "usuario@test.com",
+  "password": "password123"
+}
+
+### 4) ONBOARDING — DATOS PERSONALES
+### Actualizar datos personales
+PUT {{baseUrl}}/user/register
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Víctor",
+  "lastName": "Galán Santibáñez",
+  "nif": "12345678A",
+  "address": {
+    "street": "Calle Mayor",
+    "number": "42",
+    "postal": "28001",
+    "city": "Madrid",
+    "province": "Madrid"
+  }
+}
+
+### ONBOARDING — COMPAÑÍA 
+### Crear/unirse a compañía
+PATCH {{baseUrl}}/user/company
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "isFreelance": false,
+  "name": "Mi Empresa S.L.",
+  "cif": "B12345678",
+  "address": {
+    "street": "Paseo de la Castellana",
+    "number": "100",
+    "postal": "28046",
+    "city": "Madrid",
+    "province": "Madrid"
+  }
+}
+
+### ONBOARDING — AUTÓNOMO
+### Crear compañía como autónomo (usa NIF y datos personales)
+PATCH {{baseUrl}}/user/company
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "isFreelance": true
+}
+
+### 5) LOGO DE LA COMPAÑÍA
+PATCH {{baseUrl}}/user/logo
+Authorization: Bearer {{accessToken}}
+Content-Type: multipart/form-data; boundary=----FormBoundary
+
+------FormBoundary
+Content-Disposition: form-data; name="logo"; filename="logo.png"
+Content-Type: image/png
+
+< ./logo.png
+------FormBoundary--
+
+### 6) OBTENER USUARIO
+### Obtener perfil completo
+GET {{baseUrl}}/user
+Authorization: Bearer {{accessToken}}
+
+### 7) GESTIÓN DE SESIÓN
+### Renovar access token con refresh token
+POST {{baseUrl}}/user/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+
+### Cerrar sesión
+POST {{baseUrl}}/user/logout
+Authorization: Bearer {{accessToken}}
+
+### 8) ELIMINAR USUARIO
+### Soft delete (desactiva el usuario)
+DELETE {{baseUrl}}/user?soft=true
+Authorization: Bearer {{accessToken}}
+
+### Hard delete (elimina definitivamente)
+DELETE {{baseUrl}}/user?soft=false
+Authorization: Bearer {{accessToken}}
+
+### 9) CAMBIAR CONTRASEÑA
+### Cambiar contraseña
+PUT {{baseUrl}}/user/password
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "currentPassword": "password123",
+  "newPassword": "nuevaPassword456"
+}
+
+### Error: las contraseña antigua y nueva son iguales
+PUT {{baseUrl}}/user/password
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "currentPassword": "password123",
+  "newPassword": "password123"
+}
+
+### 10) INVITAR COMPAÑERO si eres admin
+### Invitar usuario a la compañía
+POST {{baseUrl}}/user/invite
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "email": "companero3@test.com",
+  "name": "Ana",
+  "lastName": "Martínez"
+}
+
+### ERRORES
+
+### 409: email duplicado verificado
+POST {{baseUrl}}/user/register
+Content-Type: application/json
+
+{
+  "email": "usuario@test.com",
+  "password": "otraPassword123"
+}
+
+
+
+### 401: credenciales incorrectas
+POST {{baseUrl}}/user/login
+Content-Type: application/json
+
+{
+  "email": "usuario@test.com",
+  "password": "passwordMal"
+}
+
+### 401: sin token
+GET {{baseUrl}}/user
+
+### 403: guest intenta invitar
+POST {{baseUrl}}/user/invite
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "email": "otro@test.com"
+}
+
+### 429: intentos de verificación (3 intentos) agotados
+PUT {{baseUrl}}/user/validation
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "code": "000000"
+}
