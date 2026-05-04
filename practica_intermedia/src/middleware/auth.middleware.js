@@ -9,18 +9,15 @@ export const authMiddleware = async (req, res, next) => {
     if (!authHeader?.startsWith('Bearer ')) {
       return next(AppError.unauthorized('Token no proporcionado'));
     }
-
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, config.jwt.accessSecret);
-
-    const user = await User.findById(decoded.userId).select('-password -verificationCode');
-    if (!user || user.deleted) {
-      return next(AppError.unauthorized('Usuario no encontrado'));
-    }
-
+    const user = await User.findById(decoded.userId)
+      .select('-password -verificationCode')
+      .populate('company');
+    if (!user || user.deleted) return next(AppError.unauthorized('Usuario no encontrado'));
     req.user = user;
     next();
-  } catch (err) {
+  } catch {
     next(AppError.unauthorized('Token inválido o expirado'));
   }
 };
