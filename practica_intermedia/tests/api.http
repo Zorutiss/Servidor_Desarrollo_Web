@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:3000/api
-@accessToken = accesToken
-@refreshToken = refreshToken
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWY4ZjUwMDRjYmI1ZDQzOGI1N2YyY2UiLCJpYXQiOjE3Nzc5MjMzMjgsImV4cCI6MTc3NzkyNDIyOH0.rvCIZRhbeGmjY_kLtUiREHnKTJ-J1dWnNLRO2ELlaBU
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWY4ZjUwMDRjYmI1ZDQzOGI1N2YyY2UiLCJpYXQiOjE3Nzc5MjMzMjgsImV4cCI6MTc3ODUyODEyOH0.oXz0wwaok1svRZVMIQpq1PRiKdcJZBHlWf8IYgzvnQA
 
 ### 1) REGISTRO
 ### Registrar usuario nuevo
@@ -8,7 +8,7 @@ POST {{baseUrl}}/user/register
 Content-Type: application/json
 
 {
-  "email": "usuario@test.com",
+  "email": "victor2@bildyapp.com",
   "password": "password123"
 }
 
@@ -153,6 +153,72 @@ Authorization: Bearer {{accessToken}}
   "name": "Ana",
   "lastName": "Martínez"
 }
+
+### CREAR CLIENTE
+POST {{baseUrl}}/client
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Empresa Cliente S.L.",
+  "cif": "B12345678",
+  "email": "cliente@empresa.com",
+  "phone": "600123456",
+  "address": {
+    "street": "Calle Gran Vía",
+    "number": "28",
+    "postal": "28013",
+    "city": "Madrid",
+    "province": "Madrid"
+  }
+}
+
+### LISTAR CLIENTES
+GET {{baseUrl}}/client
+Authorization: Bearer {{accessToken}}
+
+###
+
+### LISTAR CON FILTRO
+GET {{baseUrl}}/client?page=1&limit=5&name=Empresa
+Authorization: Bearer {{accessToken}}
+
+###
+
+### OBTENER CLIENTE POR ID
+GET {{baseUrl}}/client/69f8f5d04cbb5d438b57f2da
+Authorization: Bearer {{accessToken}}
+
+###
+
+### ACTUALIZAR CLIENTE
+PUT {{baseUrl}}/client/69f8f5d04cbb5d438b57f2da
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Empresa Cliente Actualizada S.L.",
+  "cif": "B12345678",
+  "phone": "600999888"
+}
+
+###
+
+### ARCHIVAR CLIENTE (soft delete)
+DELETE {{baseUrl}}/client/69f8f5d04cbb5d438b57f2da
+Authorization: Bearer {{accessToken}}
+
+###
+
+### VER CLIENTES ARCHIVADOS
+GET {{baseUrl}}/client/archived
+Authorization: Bearer {{accessToken}}
+
+###
+
+### RESTAURAR CLIENTE
+PATCH {{baseUrl}}/client/69f8f5d04cbb5d438b57f2da/restore
+Authorization: Bearer {{accessToken}}
 
 ### ERRORES
 

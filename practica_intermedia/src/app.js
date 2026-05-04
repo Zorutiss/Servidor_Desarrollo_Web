@@ -3,6 +3,8 @@ import { createServer } from 'http';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import indexRouter from './routes/index.js';
+import userRoutes from './routes/user.routes.js';
+import clientRoutes from './routes/client.routes.js';
 import errorHandler from './middleware/error-handler.js';
 
 const app = express();
@@ -22,6 +24,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // ── Rutas ──────────────────────────────────────────────────
 app.use('/api', indexRouter);
+app.use('/api/user', userRoutes);
+app.use('/api/client', clientRoutes);
 
 // ── 404 ───────────────────────────────────────────────────
 app.use((req, res) => {
