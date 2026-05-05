@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:3000/api
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWY4ZjUwMDRjYmI1ZDQzOGI1N2YyY2UiLCJpYXQiOjE3Nzc5MjMzMjgsImV4cCI6MTc3NzkyNDIyOH0.rvCIZRhbeGmjY_kLtUiREHnKTJ-J1dWnNLRO2ELlaBU
-@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWY4ZjUwMDRjYmI1ZDQzOGI1N2YyY2UiLCJpYXQiOjE3Nzc5MjMzMjgsImV4cCI6MTc3ODUyODEyOH0.oXz0wwaok1svRZVMIQpq1PRiKdcJZBHlWf8IYgzvnQA
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWY4ZjUwMDRjYmI1ZDQzOGI1N2YyY2UiLCJpYXQiOjE3Nzc5MjQyODYsImV4cCI6MTc3NzkyNTE4Nn0.jJqHN_HTVJndOadfejIRQKI-zGR7jBb4k0Q73Ie7bdQ
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWY4ZjUwMDRjYmI1ZDQzOGI1N2YyY2UiLCJpYXQiOjE3Nzc5MjQyODYsImV4cCI6MTc3ODUyOTA4Nn0.AQ9J3AyPEyiIlC6pcOcdNQ-3KAX1k6j3IOSPyUmTJ9Y
 
 ### 1) REGISTRO
 ### Registrar usuario nuevo
@@ -29,7 +29,7 @@ POST {{baseUrl}}/user/login
 Content-Type: application/json
 
 {
-  "email": "usuario@test.com",
+  "email": "victor2@bildyapp.com",
   "password": "password123"
 }
 
@@ -219,6 +219,70 @@ Authorization: Bearer {{accessToken}}
 ### RESTAURAR CLIENTE
 PATCH {{baseUrl}}/client/69f8f5d04cbb5d438b57f2da/restore
 Authorization: Bearer {{accessToken}}
+
+
+### CREAR PROYECTO
+POST {{baseUrl}}/project
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Proyecto Web Corporativa",
+  "projectCode": "PROJ-001",
+  "client": "69f8f5d04cbb5d438b57f2da",
+  "email": "proyecto@empresa.com",
+  "address": {
+    "street": "Calle Gran Vía",
+    "number": "28",
+    "postal": "28013",
+    "city": "Madrid",
+    "province": "Madrid"
+  },
+  "notes": "Proyecto de desarrollo web"
+}
+
+###
+
+### LISTAR PROYECTOS
+GET {{baseUrl}}/project
+Authorization: Bearer {{accessToken}}
+
+###
+
+### OBTENER PROYECTO POR ID (cambia el ID)
+GET {{baseUrl}}/project/69f8f7cbbefd46a86749a56a
+Authorization: Bearer {{accessToken}}
+
+###
+
+### ACTUALIZAR PROYECTO (cambia el ID)
+PUT {{baseUrl}}/project/69f8f7cbbefd46a86749a56a
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Proyecto Web Corporativa Actualizado",
+  "projectCode": "PROJ-001",
+  "client": "69f8f5d04cbb5d438b57f2da"
+}
+
+###
+### ARCHIVAR PROYECTO
+DELETE {{baseUrl}}/project/69f8f7cbbefd46a86749a56a
+Authorization: Bearer {{accessToken}}
+###
+
+### VER PROYECTOS ARCHIVADOS
+GET {{baseUrl}}/project/archived
+Authorization: Bearer {{accessToken}}
+
+###
+
+### RESTAURAR PROYECTO (cambia el ID)
+PATCH {{baseUrl}}/project/69f8f7cbbefd46a86749a56a/restore
+Authorization: Bearer {{accessToken}}
+
+
 
 ### ERRORES
 

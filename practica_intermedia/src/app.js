@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 import indexRouter from './routes/index.js';
 import userRoutes from './routes/user.routes.js';
 import clientRoutes from './routes/client.routes.js';
+import projectRoutes from './routes/project.routes.js';
 import errorHandler from './middleware/error-handler.js';
 
 const app = express();
@@ -26,6 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api', indexRouter);
 app.use('/api/user', userRoutes);
 app.use('/api/client', clientRoutes);
+app.use('/api/project', projectRoutes);
 
 // ── 404 ───────────────────────────────────────────────────
 app.use((req, res) => {
@@ -35,4 +37,4 @@ app.use((req, res) => {
 // ── Error handler ─────────────────────────────────────────
 app.use(errorHandler);
 
-export { app, httpServer };
+export { app, httpServer }; 
