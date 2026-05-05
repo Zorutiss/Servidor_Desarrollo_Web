@@ -5,8 +5,9 @@ import Company from '../models/Company.js';
 import { AppError } from '../utils/AppError.js';
 import { config } from '../config/index.js';
 import { notificationService } from '../services/notification.service.js';
+import { emailService } from '../services/email.service.js';
 
-//JWT helpers
+// ── JWT helpers ──────────────────────────────────────────────
 const generateAccessToken = (userId) =>
   jwt.sign({ userId }, config.jwt.accessSecret, { expiresIn: config.jwt.accessExpires });
 
@@ -16,12 +17,11 @@ const generateRefreshToken = (userId) =>
 const generateVerificationCode = () =>
   String(Math.floor(100000 + Math.random() * 900000));
 
-//1) Registro
+// ── 1) Registro ──────────────────────────────────────────────
 export const register = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    //Verificamos si ya existe el usuario con ese email
     const existing = await User.findOne({ email, deleted: false });
     if (existing && existing.status === 'verified') {
       return next(AppError.conflict('Ya existe una cuenta verificada con ese email'));
@@ -29,11 +29,9 @@ export const register = async (req, res, next) => {
 
     const hashed = await bcrypt.hash(password, 10);
     const verificationCode = generateVerificationCode();
-    const refreshToken = generateRefreshToken('temp');
 
     let user;
     if (existing) {
-      //Actualizar código
       existing.password = hashed;
       existing.verificationCode = verificationCode;
       existing.verificationAttempts = 3;
@@ -58,6 +56,9 @@ export const register = async (req, res, next) => {
 
     notificationService.emit('user:registered', { email: user.email, verificationCode });
 
+    // Enviar email con el código de verificación
+    emailService.sendVerificationEmail(email, verificationCode).catch(console.error);
+
     res.status(201).json({
       user: { email: user.email, status: user.status, role: user.role },
       accessToken,
@@ -68,7 +69,7 @@ export const register = async (req, res, next) => {
   }
 };
 
-//2) Validación email
+// ── 2) Validación email ──────────────────────────────────────
 export const validateEmail = async (req, res, next) => {
   try {
     const { code } = req.body;
@@ -85,11 +86,9 @@ export const validateEmail = async (req, res, next) => {
     if (user.verificationCode !== code) {
       user.verificationAttempts -= 1;
       await user.save();
-
       if (user.verificationAttempts <= 0) {
         return next(AppError.tooManyRequests('Has agotado los intentos de verificación'));
       }
-
       return next(AppError.badRequest(`Código incorrecto. Intentos restantes: ${user.verificationAttempts}`));
     }
 
@@ -99,13 +98,16 @@ export const validateEmail = async (req, res, next) => {
 
     notificationService.emit('user:verified', { email: user.email });
 
+    // Enviar email de bienvenida
+    emailService.sendWelcomeEmail(user.email, user.name).catch(console.error);
+
     res.json({ message: 'Email verificado correctamente' });
   } catch (err) {
     next(err);
   }
 };
 
-//3) Login
+// ── 3) Login ─────────────────────────────────────────────────
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -131,7 +133,7 @@ export const login = async (req, res, next) => {
   }
 };
 
-//4 Onboarding — Datos personales
+// ── 4a) Onboarding — Datos personales ────────────────────────
 export const updatePersonalData = async (req, res, next) => {
   try {
     const { name, lastName, nif, address } = req.body;
@@ -147,16 +149,15 @@ export const updatePersonalData = async (req, res, next) => {
   }
 };
 
-//4)Onboarding — Datos de compañía
+// ── 4b) Onboarding — Datos de compañía ───────────────────────
 export const updateCompany = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
     let companyData = req.body;
 
-    //Si es autónomo, usa datos del usuario
     if (companyData.isFreelance) {
       if (!user.nif) {
-        return next(AppError.badRequest('Debes completar tus datos personales antes (NIF requerido para autónomos)'));
+        return next(AppError.badRequest('Debes completar tus datos personales antes'));
       }
       companyData = {
         name: user.fullName || user.name,
@@ -166,18 +167,15 @@ export const updateCompany = async (req, res, next) => {
       };
     }
 
-    //Buscar si ya existe una Company con ese CIF
     const existingCompany = await Company.findOne({ cif: companyData.cif, deleted: false });
 
     if (existingCompany) {
-      //Unirse a la compañía existente como guest
       user.company = existingCompany._id;
       user.role = 'guest';
       await user.save();
       return res.json({ message: 'Te has unido a la compañía existente', company: existingCompany });
     }
 
-    //Crear nueva compañía
     const company = await Company.create({
       owner: user._id,
       name: companyData.name,
@@ -195,7 +193,7 @@ export const updateCompany = async (req, res, next) => {
   }
 };
 
-//5) Logo compañía 
+// ── 5) Logo compañía ─────────────────────────────────────────
 export const uploadLogo = async (req, res, next) => {
   try {
     if (!req.user.company) {
@@ -214,7 +212,7 @@ export const uploadLogo = async (req, res, next) => {
   }
 };
 
-//6) Obtener usuario
+// ── 6) Obtener usuario ────────────────────────────────────────
 export const getUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id)
@@ -227,7 +225,7 @@ export const getUser = async (req, res, next) => {
   }
 };
 
-//7) Refresh token
+// ── 7a) Refresh token ─────────────────────────────────────────
 export const refreshToken = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
@@ -255,7 +253,7 @@ export const refreshToken = async (req, res, next) => {
   }
 };
 
-//7) Logout
+// ── 7b) Logout ────────────────────────────────────────────────
 export const logout = async (req, res, next) => {
   try {
     await User.findByIdAndUpdate(req.user._id, { refreshToken: null });
@@ -265,7 +263,7 @@ export const logout = async (req, res, next) => {
   }
 };
 
-//8) Eliminar usuario
+// ── 8) Eliminar usuario ───────────────────────────────────────
 export const deleteUser = async (req, res, next) => {
   try {
     const soft = req.query.soft === 'true';
@@ -284,7 +282,7 @@ export const deleteUser = async (req, res, next) => {
   }
 };
 
-//9) Cambiar contraseña 
+// ── 9) Cambiar contraseña ─────────────────────────────────────
 export const changePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
@@ -302,7 +300,7 @@ export const changePassword = async (req, res, next) => {
   }
 };
 
-//10) Invitar compañero
+// ── 10) Invitar compañero ─────────────────────────────────────
 export const inviteUser = async (req, res, next) => {
   try {
     const { email, name, lastName } = req.body;
@@ -336,6 +334,9 @@ export const inviteUser = async (req, res, next) => {
       tempPassword,
       verificationCode,
     });
+
+    // Enviar email de invitación
+    emailService.sendInvitationEmail(email, name, tempPassword, req.user.email).catch(console.error);
 
     res.status(201).json({
       message: 'Usuario invitado correctamente',

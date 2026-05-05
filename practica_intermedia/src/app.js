@@ -8,6 +8,8 @@ import clientRoutes from './routes/client.routes.js';
 import projectRoutes from './routes/project.routes.js';
 import errorHandler from './middleware/error-handler.js';
 import deliveryNoteRoutes from './routes/deliverynote.routes.js';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './docs/swagger.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -23,7 +25,7 @@ app.use(rateLimit({
 // ── Parsers ────────────────────────────────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // ── Rutas ──────────────────────────────────────────────────
 app.use('/api', indexRouter);
 app.use('/api/user', userRoutes);
