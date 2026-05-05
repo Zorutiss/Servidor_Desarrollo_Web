@@ -16,6 +16,7 @@ const companySchema = new mongoose.Schema(
     address: addressSchema,
     logo: { type: String, default: '' },
     isFreelance: { type: Boolean, default: false },
+    //SOFT DELETE
     deleted: { type: Boolean, default: false },
   },
   { timestamps: true }

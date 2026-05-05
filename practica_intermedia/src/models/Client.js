@@ -17,12 +17,13 @@ const clientSchema = new mongoose.Schema(
     email: { type: String, trim: true, lowercase: true },
     phone: { type: String, trim: true },
     address: addressSchema,
+    //SOFT DELETE
     deleted: { type: Boolean, default: false, index: true },
   },
   { timestamps: true }
 );
 
-// CIF único por compañía
+// CIF distinto para cada compañía
 clientSchema.index({ cif: 1, company: 1 }, { unique: true });
 
 export default mongoose.model('Client', clientSchema);

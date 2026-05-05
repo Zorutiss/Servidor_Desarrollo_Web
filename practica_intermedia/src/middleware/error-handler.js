@@ -2,7 +2,6 @@ import { AppError } from '../utils/AppError.js';
 import { loggerService } from '../services/logger.service.js';
 
 const errorHandler = (err, req, res, next) => {
-  // Mongoose duplicate key
   if (err.code === 11000) {
     const field = Object.keys(err.keyValue || {})[0] || 'campo';
     err = AppError.conflict(`El ${field} ya está en uso`);
@@ -21,7 +20,7 @@ const errorHandler = (err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const message = err.isOperational ? err.message : 'Error interno del servidor';
 
-  // Enviar errores 5XX a Slack
+  // Enviar errores 500 a Slack
   if (statusCode >= 500) {
     loggerService.logError({ err, req }).catch(console.error);
   }

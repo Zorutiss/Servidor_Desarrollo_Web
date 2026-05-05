@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema(
     refreshToken: { type: String, default: null },
     company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company', default: null },
     address: addressSchema,
+    //SOFT DELETE
     deleted: { type: Boolean, default: false },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }

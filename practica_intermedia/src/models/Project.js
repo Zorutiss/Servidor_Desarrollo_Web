@@ -19,12 +19,13 @@ const projectSchema = new mongoose.Schema(
     email: { type: String, trim: true, lowercase: true },
     notes: { type: String, trim: true },
     active: { type: Boolean, default: true },
+    //SOFT DELETE
     deleted: { type: Boolean, default: false, index: true },
   },
   { timestamps: true }
 );
 
-// Código de proyecto único por compañía
+// CODIGO UNICO POR COMPAÑIA
 projectSchema.index({ projectCode: 1, company: 1 }, { unique: true });
 
 export default mongoose.model('Project', projectSchema);

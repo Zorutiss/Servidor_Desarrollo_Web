@@ -15,21 +15,21 @@ const deliveryNoteSchema = new mongoose.Schema(
     description: { type: String, trim: true },
     workDate: { type: Date, required: true },
 
-    // Para format: 'material'
+    // MATERIAL
     material: { type: String, trim: true },
     quantity: { type: Number, min: 0 },
     unit: { type: String, trim: true },
 
-    // Para format: 'hours'
+    // HORAS
     hours: { type: Number, min: 0 },
     workers: [workerSchema],
 
-    // Firma
+    // FIRMA
     signed: { type: Boolean, default: false },
     signedAt: { type: Date },
     signatureUrl: { type: String, default: '' },
     pdfUrl: { type: String, default: '' },
-
+    //SOFT DELETE
     deleted: { type: Boolean, default: false, index: true },
   },
   { timestamps: true }
