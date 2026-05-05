@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:3000/api
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWY4ZjUwMDRjYmI1ZDQzOGI1N2YyY2UiLCJpYXQiOjE3Nzc5MjQyODYsImV4cCI6MTc3NzkyNTE4Nn0.jJqHN_HTVJndOadfejIRQKI-zGR7jBb4k0Q73Ie7bdQ
-@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWY4ZjUwMDRjYmI1ZDQzOGI1N2YyY2UiLCJpYXQiOjE3Nzc5MjQyODYsImV4cCI6MTc3ODUyOTA4Nn0.AQ9J3AyPEyiIlC6pcOcdNQ-3KAX1k6j3IOSPyUmTJ9Y
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWY4ZjUwMDRjYmI1ZDQzOGI1N2YyY2UiLCJpYXQiOjE3Nzc5NzQ0NTEsImV4cCI6MTc3Nzk3NTM1MX0.VOs2LyMxiIR2MQpQKoaBgnTXN8kIfgtdGcmnwZKNrmM
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWY4ZjUwMDRjYmI1ZDQzOGI1N2YyY2UiLCJpYXQiOjE3Nzc5NzQ0NTEsImV4cCI6MTc3ODU3OTI1MX0.4yXUa0F4BzjUZBJ0tY8YkCEN3p9EDCass3d2mWtqzyI
 
 ### 1) REGISTRO
 ### Registrar usuario nuevo
@@ -281,6 +281,89 @@ Authorization: Bearer {{accessToken}}
 ### RESTAURAR PROYECTO (cambia el ID)
 PATCH {{baseUrl}}/project/69f8f7cbbefd46a86749a56a/restore
 Authorization: Bearer {{accessToken}}
+
+
+### CREAR ALBARÁN DE HORAS
+POST {{baseUrl}}/deliverynote
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "format": "hours",
+  "client": "69f8f5d04cbb5d438b57f2da",
+  "project": "69f8f7cbbefd46a86749a56a",
+  "description": "Trabajo de desarrollo",
+  "workDate": "2026-05-04",
+  "hours": 8,
+  "workers": [
+    { "name": "Víctor", "hours": 8 }
+  ]
+}
+
+###
+
+### CREAR ALBARÁN DE MATERIAL
+POST {{baseUrl}}/deliverynote
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "format": "material",
+  "client": "69f8f5d04cbb5d438b57f2da",
+  "project": "69f8f7cbbefd46a86749a56a",
+  "description": "Suministro de materiales",
+  "workDate": "2026-05-04",
+  "material": "Cemento Portland",
+  "quantity": 50,
+  "unit": "sacos"
+}
+
+###
+
+### LISTAR ALBARANES
+GET {{baseUrl}}/deliverynote
+Authorization: Bearer {{accessToken}}
+
+###
+
+### OBTENER ALBARÁN POR ID (cambia el ID)
+GET {{baseUrl}}/deliverynote/69f9bcd3571ce411224ecf4e
+Authorization: Bearer {{accessToken}}
+
+###
+
+### ACTUALIZAR ALBARÁN (cambia el ID)
+PUT {{baseUrl}}/deliverynote/69f9bcd3571ce411224ecf4e
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "description": "Descripción actualizada",
+  "hours": 10
+}
+
+###
+
+### ELIMINAR ALBARÁN (cambia el ID)
+DELETE {{baseUrl}}/deliverynote/69f9bcd3571ce411224ecf4e
+Authorization: Bearer {{accessToken}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -7,6 +7,7 @@ import userRoutes from './routes/user.routes.js';
 import clientRoutes from './routes/client.routes.js';
 import projectRoutes from './routes/project.routes.js';
 import errorHandler from './middleware/error-handler.js';
+import deliveryNoteRoutes from './routes/deliverynote.routes.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -28,6 +29,7 @@ app.use('/api', indexRouter);
 app.use('/api/user', userRoutes);
 app.use('/api/client', clientRoutes);
 app.use('/api/project', projectRoutes);
+app.use('/api/deliverynote', deliveryNoteRoutes);
 
 // ── 404 ───────────────────────────────────────────────────
 app.use((req, res) => {
