@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:3000/api
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWY4ZjUwMDRjYmI1ZDQzOGI1N2YyY2UiLCJpYXQiOjE3Nzc5NzQ0NTEsImV4cCI6MTc3Nzk3NTM1MX0.VOs2LyMxiIR2MQpQKoaBgnTXN8kIfgtdGcmnwZKNrmM
-@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWY4ZjUwMDRjYmI1ZDQzOGI1N2YyY2UiLCJpYXQiOjE3Nzc5NzQ0NTEsImV4cCI6MTc3ODU3OTI1MX0.4yXUa0F4BzjUZBJ0tY8YkCEN3p9EDCass3d2mWtqzyI
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWY4ZjUwMDRjYmI1ZDQzOGI1N2YyY2UiLCJpYXQiOjE3Nzc5NzQ5NjUsImV4cCI6MTc3Nzk3NTg2NX0.-1eptoJcDKzUD8Vw498phtEeAhA6iHjI3Xr5o3wKZJI
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWY4ZjUwMDRjYmI1ZDQzOGI1N2YyY2UiLCJpYXQiOjE3Nzc5NzQ5NjUsImV4cCI6MTc3ODU3OTc2NX0.RszGzLty8ZWHRGeP9PfN-r76yp97U8RWuvezD9vp7Ts
 
 ### 1) REGISTRO
 ### Registrar usuario nuevo
@@ -351,12 +351,28 @@ Authorization: Bearer {{accessToken}}
 
 
 
+### FIRMAR ALBARÁN
+PATCH {{baseUrl}}/deliverynote/69f9beab6520129373cf402e/sign
+Authorization: Bearer {{accessToken}}
+Content-Type: multipart/form-data; boundary=----FormBoundary
+
+------FormBoundary
+Content-Disposition: form-data; name="signature"; filename="firma.png"
+Content-Type: image/png
+
+< ./firma.png
+------FormBoundary--
+### OBTENER PDF DEL ALBARÁN (cambia el ID)
+GET {{baseUrl}}/deliverynote/69f9beab6520129373cf402e/pdf
+Authorization: Bearer {{accessToken}}
 
 
 
 
 
-
+### OBTENER PDF DEL ALBARÁN (cambia el ID)
+GET {{baseUrl}}/deliverynote/69f9beab6520129373cf402e/pdf
+Authorization: Bearer {{accessToken}}
 
 
 
