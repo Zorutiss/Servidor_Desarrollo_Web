@@ -2,6 +2,7 @@ import cloudinary from '../config/cloudinary.js';
 import DeliveryNote from '../models/DeliveryNote.js';
 import { AppError } from '../utils/AppError.js';
 import { generateDeliveryNotePDF } from '../services/pdf.service.js';
+import { getIO } from '../socket/index.js';
 
 const populate = [
   { path: 'client', select: 'name cif email' },
@@ -24,14 +25,10 @@ export const signDeliveryNote = async (req, res, next) => {
     if (note.signed) return next(AppError.badRequest('El albarán ya está firmado'));
     if (!req.file) return next(AppError.badRequest('No se ha subido ninguna imagen de firma'));
 
-    // Subir firma a Cloudinary desde buffer (memory storage)
+    // Subir firma a Cloudinary
     const signatureUrl = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
-        {
-          folder: 'bildyapp/signatures',
-          public_id: `firma_${note._id}`,
-          resource_type: 'image',
-        },
+        { folder: 'bildyapp/signatures', public_id: `firma_${note._id}`, resource_type: 'image' },
         (error, result) => {
           if (error) reject(error);
           else resolve(result.secure_url);
@@ -40,18 +37,19 @@ export const signDeliveryNote = async (req, res, next) => {
       stream.end(req.file.buffer);
     });
 
-    // Guardar firma y marcar como firmado
     note.signed = true;
     note.signedAt = new Date();
     note.signatureUrl = signatureUrl;
     await note.save();
 
-    // Generar PDF con la firma incluida
     const populated = await note.populate(populate);
     const pdfUrl = await generateDeliveryNotePDF(populated);
 
     note.pdfUrl = pdfUrl;
     await note.save();
+
+    // Notificar en tiempo real a todos los usuarios de la compañía
+    try { getIO().to(companyId.toString()).emit('deliverynote:signed', { deliveryNoteId: note._id, pdfUrl }); } catch {}
 
     res.json({
       message: 'Albarán firmado correctamente',
@@ -81,12 +79,10 @@ export const getDeliveryNotePDF = async (req, res, next) => {
 
     if (!note) return next(AppError.notFound('Albarán no encontrado'));
 
-    // Si ya tiene PDF generado, devolver la URL
     if (note.pdfUrl) {
       return res.json({ pdfUrl: note.pdfUrl });
     }
 
-    // Generar PDF bajo demanda (aunque no esté firmado)
     const pdfUrl = await generateDeliveryNotePDF(note);
     note.pdfUrl = pdfUrl;
     await note.save();

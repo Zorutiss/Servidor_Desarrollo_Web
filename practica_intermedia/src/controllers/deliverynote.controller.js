@@ -2,6 +2,7 @@ import DeliveryNote from '../models/DeliveryNote.js';
 import Client from '../models/Client.js';
 import Project from '../models/Project.js';
 import { AppError } from '../utils/AppError.js';
+import { getIO } from '../socket/index.js';
 
 const populate = [
   { path: 'client', select: 'name cif email' },
@@ -19,17 +20,10 @@ export const createDeliveryNote = async (req, res, next) => {
 
     const { client, project } = req.body;
 
-    // Verificar que el cliente pertenece a la compañía
     const clientDoc = await Client.findOne({ _id: client, company: companyId, deleted: false });
     if (!clientDoc) return next(AppError.notFound('Cliente no encontrado en tu compañía'));
 
-    // Verificar que el proyecto pertenece a la compañía y al cliente
-    const projectDoc = await Project.findOne({
-      _id: project,
-      company: companyId,
-      client,
-      deleted: false,
-    });
+    const projectDoc = await Project.findOne({ _id: project, company: companyId, client, deleted: false });
     if (!projectDoc) return next(AppError.notFound('Proyecto no encontrado para ese cliente'));
 
     const note = await DeliveryNote.create({
@@ -40,6 +34,10 @@ export const createDeliveryNote = async (req, res, next) => {
     });
 
     const populated = await note.populate(populate);
+
+    // Notificar en tiempo real a todos los usuarios de la compañía
+    try { getIO().to(companyId.toString()).emit('deliverynote:new', { deliveryNote: populated }); } catch {}
+
     res.status(201).json({ deliveryNote: populated });
   } catch (err) {
     next(err);
@@ -61,11 +59,7 @@ export const getDeliveryNotes = async (req, res, next) => {
     if (signed !== undefined) filter.signed = signed === 'true';
 
     const [notes, totalItems] = await Promise.all([
-      DeliveryNote.find(filter)
-        .populate(populate)
-        .sort(sort)
-        .skip(skip)
-        .limit(parseInt(limit)),
+      DeliveryNote.find(filter).populate(populate).sort(sort).skip(skip).limit(parseInt(limit)),
       DeliveryNote.countDocuments(filter),
     ]);
 
@@ -111,11 +105,7 @@ export const updateDeliveryNote = async (req, res, next) => {
     });
 
     if (!note) return next(AppError.notFound('Albarán no encontrado'));
-
-    // No se puede editar un albarán firmado
-    if (note.signed) {
-      return next(AppError.forbidden('No se puede editar un albarán ya firmado'));
-    }
+    if (note.signed) return next(AppError.forbidden('No se puede editar un albarán ya firmado'));
 
     if (req.body.workDate) req.body.workDate = new Date(req.body.workDate);
     Object.assign(note, req.body);
@@ -139,11 +129,7 @@ export const deleteDeliveryNote = async (req, res, next) => {
     });
 
     if (!note) return next(AppError.notFound('Albarán no encontrado'));
-
-    // No se puede eliminar un albarán firmado
-    if (note.signed) {
-      return next(AppError.forbidden('No se puede eliminar un albarán ya firmado'));
-    }
+    if (note.signed) return next(AppError.forbidden('No se puede eliminar un albarán ya firmado'));
 
     await note.deleteOne();
     res.json({ message: 'Albarán eliminado correctamente' });

@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:3000/api
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWY4ZjUwMDRjYmI1ZDQzOGI1N2YyY2UiLCJpYXQiOjE3Nzc5NzQ5NjUsImV4cCI6MTc3Nzk3NTg2NX0.-1eptoJcDKzUD8Vw498phtEeAhA6iHjI3Xr5o3wKZJI
-@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWY4ZjUwMDRjYmI1ZDQzOGI1N2YyY2UiLCJpYXQiOjE3Nzc5NzQ5NjUsImV4cCI6MTc3ODU3OTc2NX0.RszGzLty8ZWHRGeP9PfN-r76yp97U8RWuvezD9vp7Ts
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWY4ZjUwMDRjYmI1ZDQzOGI1N2YyY2UiLCJpYXQiOjE3NzgwMTM0NjAsImV4cCI6MTc3ODAxNDM2MH0.mVKbkzRtPAFd-PCtz9UQAApwfYYr4I158otmHs9dny0
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWY4ZjUwMDRjYmI1ZDQzOGI1N2YyY2UiLCJpYXQiOjE3NzgwMTM0NjAsImV4cCI6MTc3ODYxODI2MH0.EFXcUB2F68eKp04m-wKwRi8oQR5hR7LJLmD2muzkcHw
 
 ### 1) REGISTRO
 ### Registrar usuario nuevo
@@ -379,7 +379,16 @@ Authorization: Bearer {{accessToken}}
 
 
 
+### CREAR CLIENTE (prueba socket)
+POST {{baseUrl}}/client
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
 
+{
+  "name": "Cliente Socket Test",
+  "cif": "B99999999",
+  "email": "socket@test.com"
+}
 
 
 

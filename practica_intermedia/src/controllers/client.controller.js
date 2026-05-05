@@ -1,5 +1,6 @@
 import Client from '../models/Client.js';
 import { AppError } from '../utils/AppError.js';
+import { getIO } from '../socket/index.js';
 
 // ── POST /api/client ─────────────────────────────────────────
 export const createClient = async (req, res, next) => {
@@ -11,7 +12,6 @@ export const createClient = async (req, res, next) => {
       return next(AppError.badRequest('Debes completar el onboarding de compañía primero'));
     }
 
-    // CIF único por compañía
     const existing = await Client.findOne({ cif, company: companyId, deleted: false });
     if (existing) {
       return next(AppError.conflict('Ya existe un cliente con ese CIF en tu compañía'));
@@ -26,6 +26,9 @@ export const createClient = async (req, res, next) => {
       phone,
       address,
     });
+
+    // Notificar en tiempo real a todos los usuarios de la compañía
+    try { getIO().to(companyId.toString()).emit('client:new', { client }); } catch {}
 
     res.status(201).json({ client });
   } catch (err) {
@@ -45,7 +48,6 @@ export const updateClient = async (req, res, next) => {
 
     if (!client) return next(AppError.notFound('Cliente no encontrado'));
 
-    // Si cambia el CIF verificar que no esté en uso
     if (req.body.cif && req.body.cif !== client.cif) {
       const existing = await Client.findOne({
         cif: req.body.cif,
@@ -69,33 +71,22 @@ export const updateClient = async (req, res, next) => {
 export const getClients = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
-    const {
-      page = 1,
-      limit = 10,
-      name,
-      sort = '-createdAt',
-    } = req.query;
+    const { page = 1, limit = 10, name, sort = '-createdAt' } = req.query;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const filter = { company: companyId, deleted: false };
-
     if (name) filter.name = { $regex: name, $options: 'i' };
 
     const [clients, totalItems] = await Promise.all([
-      Client.find(filter)
-        .sort(sort)
-        .skip(skip)
-        .limit(parseInt(limit)),
+      Client.find(filter).sort(sort).skip(skip).limit(parseInt(limit)),
       Client.countDocuments(filter),
     ]);
-
-    const totalPages = Math.ceil(totalItems / parseInt(limit));
 
     res.json({
       clients,
       pagination: {
         totalItems,
-        totalPages,
+        totalPages: Math.ceil(totalItems / parseInt(limit)),
         currentPage: parseInt(page),
         limit: parseInt(limit),
       },

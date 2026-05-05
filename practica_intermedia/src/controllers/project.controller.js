@@ -1,6 +1,7 @@
 import Project from '../models/Project.js';
 import Client from '../models/Client.js';
 import { AppError } from '../utils/AppError.js';
+import { getIO } from '../socket/index.js';
 
 // ── POST /api/project ────────────────────────────────────────
 export const createProject = async (req, res, next) => {
@@ -12,15 +13,9 @@ export const createProject = async (req, res, next) => {
 
     const { name, projectCode, client, email, address, notes } = req.body;
 
-    // Verificar que el cliente pertenece a la compañía
-    const clientDoc = await Client.findOne({
-      _id: client,
-      company: companyId,
-      deleted: false,
-    });
+    const clientDoc = await Client.findOne({ _id: client, company: companyId, deleted: false });
     if (!clientDoc) return next(AppError.notFound('Cliente no encontrado en tu compañía'));
 
-    // Código único por compañía
     const existing = await Project.findOne({ projectCode, company: companyId, deleted: false });
     if (existing) {
       return next(AppError.conflict('Ya existe un proyecto con ese código en tu compañía'));
@@ -37,9 +32,10 @@ export const createProject = async (req, res, next) => {
       notes,
     });
 
-    const populated = await project.populate([
-      { path: 'client', select: 'name cif email' },
-    ]);
+    const populated = await project.populate([{ path: 'client', select: 'name cif email' }]);
+
+    // Notificar en tiempo real a todos los usuarios de la compañía
+    try { getIO().to(companyId.toString()).emit('project:new', { project: populated }); } catch {}
 
     res.status(201).json({ project: populated });
   } catch (err) {
@@ -51,15 +47,10 @@ export const createProject = async (req, res, next) => {
 export const updateProject = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
-    const project = await Project.findOne({
-      _id: req.params.id,
-      company: companyId,
-      deleted: false,
-    });
+    const project = await Project.findOne({ _id: req.params.id, company: companyId, deleted: false });
 
     if (!project) return next(AppError.notFound('Proyecto no encontrado'));
 
-    // Si cambia el código verificar que no esté en uso
     if (req.body.projectCode && req.body.projectCode !== project.projectCode) {
       const existing = await Project.findOne({
         projectCode: req.body.projectCode,
@@ -70,23 +61,15 @@ export const updateProject = async (req, res, next) => {
       if (existing) return next(AppError.conflict('Ya existe un proyecto con ese código'));
     }
 
-    // Si cambia el cliente verificar que pertenece a la compañía
     if (req.body.client) {
-      const clientDoc = await Client.findOne({
-        _id: req.body.client,
-        company: companyId,
-        deleted: false,
-      });
+      const clientDoc = await Client.findOne({ _id: req.body.client, company: companyId, deleted: false });
       if (!clientDoc) return next(AppError.notFound('Cliente no encontrado en tu compañía'));
     }
 
     Object.assign(project, req.body);
     await project.save();
 
-    const populated = await project.populate([
-      { path: 'client', select: 'name cif email' },
-    ]);
-
+    const populated = await project.populate([{ path: 'client', select: 'name cif email' }]);
     res.json({ project: populated });
   } catch (err) {
     next(err);
@@ -101,16 +84,11 @@ export const getProjects = async (req, res, next) => {
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const filter = { company: companyId, deleted: false };
-
     if (name) filter.name = { $regex: name, $options: 'i' };
     if (client) filter.client = client;
 
     const [projects, totalItems] = await Promise.all([
-      Project.find(filter)
-        .populate('client', 'name cif')
-        .sort(sort)
-        .skip(skip)
-        .limit(parseInt(limit)),
+      Project.find(filter).populate('client', 'name cif').sort(sort).skip(skip).limit(parseInt(limit)),
       Project.countDocuments(filter),
     ]);
 
@@ -132,8 +110,7 @@ export const getProjects = async (req, res, next) => {
 export const getArchivedProjects = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
-    const projects = await Project.find({ company: companyId, deleted: true })
-      .populate('client', 'name cif');
+    const projects = await Project.find({ company: companyId, deleted: true }).populate('client', 'name cif');
     res.json({ projects });
   } catch (err) {
     next(err);
@@ -144,11 +121,8 @@ export const getArchivedProjects = async (req, res, next) => {
 export const getProjectById = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
-    const project = await Project.findOne({
-      _id: req.params.id,
-      company: companyId,
-      deleted: false,
-    }).populate('client', 'name cif email phone');
+    const project = await Project.findOne({ _id: req.params.id, company: companyId, deleted: false })
+      .populate('client', 'name cif email phone');
 
     if (!project) return next(AppError.notFound('Proyecto no encontrado'));
     res.json({ project });
@@ -163,12 +137,7 @@ export const deleteProject = async (req, res, next) => {
     const companyId = req.user.company?._id || req.user.company;
     const soft = req.query.soft !== 'false';
 
-    const project = await Project.findOne({
-      _id: req.params.id,
-      company: companyId,
-      deleted: false,
-    });
-
+    const project = await Project.findOne({ _id: req.params.id, company: companyId, deleted: false });
     if (!project) return next(AppError.notFound('Proyecto no encontrado'));
 
     if (soft) {
@@ -188,11 +157,7 @@ export const deleteProject = async (req, res, next) => {
 export const restoreProject = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
-    const project = await Project.findOne({
-      _id: req.params.id,
-      company: companyId,
-      deleted: true,
-    });
+    const project = await Project.findOne({ _id: req.params.id, company: companyId, deleted: true });
 
     if (!project) return next(AppError.notFound('Proyecto archivado no encontrado'));
 
