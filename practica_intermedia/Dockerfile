@@ -1,16 +1,16 @@
-# ── Etapa 1: dependencias ────────────────────────────────────
+# Etapa 1: dependencias 
 FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 
-# ── Etapa 2: imagen final ────────────────────────────────────
+# Etapa 2: imagen final
 FROM node:22-alpine
 WORKDIR /app
 
 LABEL description="BildyApp API"
 
-# Usuario no-root por seguridad
+# No root por temas de seguridad
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 COPY --from=deps /app/node_modules ./node_modules

@@ -3,7 +3,7 @@ import Client from '../models/Client.js';
 import { AppError } from '../utils/AppError.js';
 import { getIO } from '../socket/index.js';
 
-// ── POST /api/project ────────────────────────────────────────
+// POST /api/project
 export const createProject = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
@@ -34,7 +34,7 @@ export const createProject = async (req, res, next) => {
 
     const populated = await project.populate([{ path: 'client', select: 'name cif email' }]);
 
-    // Notificar en tiempo real a todos los usuarios de la compañía
+    // NOTIFICAR A TODOS LOS USUARIOS DE LA COMPAÑIA
     try { getIO().to(companyId.toString()).emit('project:new', { project: populated }); } catch {}
 
     res.status(201).json({ project: populated });
@@ -43,7 +43,7 @@ export const createProject = async (req, res, next) => {
   }
 };
 
-// ── PUT /api/project/:id ─────────────────────────────────────
+// PUT /api/project/:id 
 export const updateProject = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
@@ -76,7 +76,7 @@ export const updateProject = async (req, res, next) => {
   }
 };
 
-// ── GET /api/project ─────────────────────────────────────────
+// GET /api/project
 export const getProjects = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
@@ -106,7 +106,7 @@ export const getProjects = async (req, res, next) => {
   }
 };
 
-// ── GET /api/project/archived ────────────────────────────────
+// GET /api/project/archived
 export const getArchivedProjects = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
@@ -117,7 +117,7 @@ export const getArchivedProjects = async (req, res, next) => {
   }
 };
 
-// ── GET /api/project/:id ─────────────────────────────────────
+// GET /api/project/:id
 export const getProjectById = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
@@ -131,7 +131,7 @@ export const getProjectById = async (req, res, next) => {
   }
 };
 
-// ── DELETE /api/project/:id ──────────────────────────────────
+// DELETE /api/project/:id
 export const deleteProject = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
@@ -153,7 +153,7 @@ export const deleteProject = async (req, res, next) => {
   }
 };
 
-// ── PATCH /api/project/:id/restore ──────────────────────────
+// PATCH /api/project/:id/restore
 export const restoreProject = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;

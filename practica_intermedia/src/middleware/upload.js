@@ -2,7 +2,7 @@ import multer from 'multer';
 import path from 'path';
 import { AppError } from '../utils/AppError.js';
 
-// Para logos — guarda en disco
+// LOGO: GUARDAR EN DISCO
 const logoStorage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
   filename: (req, file, cb) => {
@@ -11,7 +11,7 @@ const logoStorage = multer.diskStorage({
   },
 });
 
-// Para firmas — guarda en memoria (para Cloudinary)
+// FIRMA: Guardar en memoria
 const signatureStorage = multer.memoryStorage();
 
 const imageFilter = (req, file, cb) => {

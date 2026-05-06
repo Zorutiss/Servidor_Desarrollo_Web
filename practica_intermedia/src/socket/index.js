@@ -18,11 +18,11 @@ export const initSocket = (httpServer) => {
     if (companyId) {
       // Unirse a la room de la compañía
       socket.join(companyId);
-      console.log(`🔌 ${user.email} conectado a room ${companyId}`);
+      console.log(`${user.email} conectado a room ${companyId}`);
     }
 
     socket.on('disconnect', () => {
-      console.log(`🔌 ${user.email} desconectado`);
+      console.log(`${user.email} desconectado`);
     });
   });
 

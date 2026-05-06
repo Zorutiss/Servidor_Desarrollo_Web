@@ -29,7 +29,7 @@ class EmailService {
         </div>
       `,
     });
-    console.log(`📧 Email de verificación enviado a ${email}`);
+    console.log(`Email de verificación enviado a ${email}`);
   }
 
   async sendWelcomeEmail(email, name) {
@@ -46,7 +46,7 @@ class EmailService {
         </div>
       `,
     });
-    console.log(`📧 Email de bienvenida enviado a ${email}`);
+    console.log(`Email de bienvenida enviado a ${email}`);
   }
 
   async sendInvitationEmail(email, name, tempPassword, invitedBy) {
@@ -68,7 +68,7 @@ class EmailService {
         </div>
       `,
     });
-    console.log(`📧 Email de invitación enviado a ${email}`);
+    console.log(`Email de invitación enviado a ${email}`);
   }
 }
 

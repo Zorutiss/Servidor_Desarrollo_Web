@@ -6,6 +6,6 @@ const PORT = process.env.PORT || 3000;
 connectDB(process.env.MONGODB_URI);
 
 app.listen(PORT, () => {
-  console.log(`🎙️  PodcastHub API corriendo en http://localhost:${PORT}`);
-  console.log(`📚 Swagger disponible en http://localhost:${PORT}/api-docs`);
+  console.log(`PodcastHub API corriendo en http://localhost:${PORT}`);
+  console.log(`Swagger disponible en http://localhost:${PORT}/api-docs`);
 });

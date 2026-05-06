@@ -14,15 +14,28 @@ import { clientSchema } from '../validators/client.validator.js';
 
 const router = Router();
 
-// Todas las rutas requieren autenticación
+// TODAS LAS RUTAS REQUIEREN TOKEN AUTENTICADO
 router.use(authMiddleware);
 
-router.get('/archived', getArchivedClients);         // GET /api/client/archived
-router.get('/', getClients);                          // GET /api/client
-router.get('/:id', getClientById);                   // GET /api/client/:id
-router.post('/', validate(clientSchema), createClient);           // POST /api/client
-router.put('/:id', validate(clientSchema), updateClient);         // PUT /api/client/:id
-router.delete('/:id', deleteClient);                 // DELETE /api/client/:id
-router.patch('/:id/restore', restoreClient);         // PATCH /api/client/:id/restore
+// GET /api/client/archived
+router.get('/archived', getArchivedClients); 
+
+// GET /api/client
+router.get('/', getClients);    
+
+// GET /api/client/:id
+router.get('/:id', getClientById);                
+
+// POST /api/client
+router.post('/', validate(clientSchema), createClient);   
+
+ // PUT /api/client/:id        
+router.put('/:id', validate(clientSchema), updateClient);  
+
+// DELETE /api/client/:id      
+router.delete('/:id', deleteClient);  
+
+// PATCH /api/client/:id/restore               
+router.patch('/:id/restore', restoreClient);         
 
 export default router;

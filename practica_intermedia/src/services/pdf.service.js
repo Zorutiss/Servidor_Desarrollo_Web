@@ -12,7 +12,7 @@ export const generateDeliveryNotePDF = async (note) => {
       try {
         const buffer = Buffer.concat(chunks);
 
-        // Subir PDF a Cloudinary
+        // SUBIR A CLOUDINARY PDF
         const result = await new Promise((res, rej) => {
           const stream = cloudinary.uploader.upload_stream(
             {
@@ -35,18 +35,18 @@ export const generateDeliveryNotePDF = async (note) => {
       }
     });
 
-    // ── Cabecera ──────────────────────────────────────────
+    // Cabecera 
     doc.fontSize(20).font('Helvetica-Bold').text('ALBARÁN', { align: 'center' });
     doc.moveDown(0.5);
     doc.fontSize(10).font('Helvetica').fillColor('#666')
       .text(`Nº: ${note._id}`, { align: 'center' });
     doc.moveDown(1);
 
-    // ── Línea separadora ──────────────────────────────────
+    // Línea separadora 
     doc.moveTo(50, doc.y).lineTo(545, doc.y).strokeColor('#cccccc').stroke();
     doc.moveDown(1);
 
-    // ── Datos empresa / usuario ───────────────────────────
+    // Datos empresa / usuario 
     doc.fontSize(12).font('Helvetica-Bold').fillColor('#000').text('EMISOR');
     doc.fontSize(10).font('Helvetica');
     const userName = note.user?.name
@@ -56,21 +56,21 @@ export const generateDeliveryNotePDF = async (note) => {
     doc.text(`Email: ${note.user?.email || 'N/A'}`);
     doc.moveDown(1);
 
-    // ── Datos cliente ─────────────────────────────────────
+    // Datos cliente
     doc.fontSize(12).font('Helvetica-Bold').text('CLIENTE');
     doc.fontSize(10).font('Helvetica');
     doc.text(`Nombre: ${note.client?.name || 'N/A'}`);
     doc.text(`CIF: ${note.client?.cif || 'N/A'}`);
     doc.moveDown(1);
 
-    // ── Datos proyecto ────────────────────────────────────
+    // Datos proyecto 
     doc.fontSize(12).font('Helvetica-Bold').text('PROYECTO');
     doc.fontSize(10).font('Helvetica');
     doc.text(`Nombre: ${note.project?.name || 'N/A'}`);
     doc.text(`Código: ${note.project?.projectCode || 'N/A'}`);
     doc.moveDown(1);
 
-    // ── Detalles del albarán ──────────────────────────────
+    // Detalles del albarán 
     doc.fontSize(12).font('Helvetica-Bold').text('DETALLES');
     doc.fontSize(10).font('Helvetica');
     doc.text(`Formato: ${note.format === 'hours' ? 'Horas' : 'Material'}`);
@@ -95,7 +95,7 @@ export const generateDeliveryNotePDF = async (note) => {
 
     doc.moveDown(2);
 
-    // ── Firma ─────────────────────────────────────────────
+    // Firma 
     if (note.signatureUrl) {
       doc.fontSize(12).font('Helvetica-Bold').text('FIRMA');
       doc.moveDown(0.5);
@@ -109,7 +109,7 @@ export const generateDeliveryNotePDF = async (note) => {
         .text(`Firmado el: ${new Date(note.signedAt).toLocaleString('es-ES')}`);
     }
 
-    // ── Pie de página ─────────────────────────────────────
+    // Pie de página 
     doc.fontSize(8).fillColor('#999')
       .text(
         `Documento generado el ${new Date().toLocaleString('es-ES')}`,

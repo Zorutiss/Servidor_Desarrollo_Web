@@ -40,7 +40,7 @@ export const createCompany = async (ownerId) => {
     cif: 'B99999999',
     address: { street: 'Calle Test', city: 'Madrid' },
   });
-  // Asignar compañía al owner
+  // Asignar compañía al propietario
   await User.findByIdAndUpdate(ownerId, { company: company._id });
   return company;
 };

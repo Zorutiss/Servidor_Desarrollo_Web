@@ -15,10 +15,10 @@ import { initSocket } from './socket/index.js';
 const app = express();
 const httpServer = createServer(app);
 
-// ── Socket.IO ──────────────────────────────────────────────
+// SOCKET.IO
 initSocket(httpServer);
 
-// ── Seguridad ──────────────────────────────────────────────
+// SEGURIDAD
 app.use(helmet());
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -26,26 +26,26 @@ app.use(rateLimit({
   message: { message: 'Demasiadas peticiones, inténtalo más tarde' },
 }));
 
-// ── Parsers ────────────────────────────────────────────────
+// PARSERS
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ── Swagger ────────────────────────────────────────────────
+// SWAGGER
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// ── Rutas ──────────────────────────────────────────────────
+// RUTAS
 app.use('/api', indexRouter);
 app.use('/api/user', userRoutes);
 app.use('/api/client', clientRoutes);
 app.use('/api/project', projectRoutes);
 app.use('/api/deliverynote', deliveryNoteRoutes);
 
-// ── 404 ───────────────────────────────────────────────────
+// 404: NO ENCONTRADO
 app.use((req, res) => {
   res.status(404).json({ message: 'Ruta no encontrada' });
 });
 
-// ── Error handler ─────────────────────────────────────────
+// MANEJO DE ERRORES
 app.use(errorHandler);
 
 export { app, httpServer };

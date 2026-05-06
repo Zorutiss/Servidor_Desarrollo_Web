@@ -2,7 +2,7 @@ import Client from '../models/Client.js';
 import { AppError } from '../utils/AppError.js';
 import { getIO } from '../socket/index.js';
 
-// ── POST /api/client ─────────────────────────────────────────
+// POST /api/client
 export const createClient = async (req, res, next) => {
   try {
     const { name, cif, email, phone, address } = req.body;
@@ -27,7 +27,7 @@ export const createClient = async (req, res, next) => {
       address,
     });
 
-    // Notificar en tiempo real a todos los usuarios de la compañía
+    // NOTIFICAR EN TIEMPO REAL A TODOS LOS USUARIOS DE LA COMPAÑIA
     try { getIO().to(companyId.toString()).emit('client:new', { client }); } catch {}
 
     res.status(201).json({ client });
@@ -36,7 +36,7 @@ export const createClient = async (req, res, next) => {
   }
 };
 
-// ── PUT /api/client/:id ──────────────────────────────────────
+// PUT /api/client/:id
 export const updateClient = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
@@ -67,7 +67,7 @@ export const updateClient = async (req, res, next) => {
   }
 };
 
-// ── GET /api/client ──────────────────────────────────────────
+// GET /api/client
 export const getClients = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
@@ -96,7 +96,7 @@ export const getClients = async (req, res, next) => {
   }
 };
 
-// ── GET /api/client/archived ─────────────────────────────────
+// GET /api/client/archived
 export const getArchivedClients = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
@@ -107,7 +107,7 @@ export const getArchivedClients = async (req, res, next) => {
   }
 };
 
-// ── GET /api/client/:id ──────────────────────────────────────
+// GET /api/client/:id
 export const getClientById = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
@@ -124,7 +124,7 @@ export const getClientById = async (req, res, next) => {
   }
 };
 
-// ── DELETE /api/client/:id ───────────────────────────────────
+// DELETE /api/client/:id
 export const deleteClient = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
@@ -151,7 +151,7 @@ export const deleteClient = async (req, res, next) => {
   }
 };
 
-// ── PATCH /api/client/:id/restore ───────────────────────────
+// PATCH /api/client/:id/restore
 export const restoreClient = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;

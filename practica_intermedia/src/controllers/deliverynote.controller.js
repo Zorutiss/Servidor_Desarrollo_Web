@@ -10,7 +10,7 @@ const populate = [
   { path: 'user', select: 'name lastName email' },
 ];
 
-// ── POST /api/deliverynote ───────────────────────────────────
+// POST /api/deliverynote
 export const createDeliveryNote = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
@@ -35,7 +35,7 @@ export const createDeliveryNote = async (req, res, next) => {
 
     const populated = await note.populate(populate);
 
-    // Notificar en tiempo real a todos los usuarios de la compañía
+    // NOTIFICAR A TODOS LOS USUARIOS DE LA COMPAÑIA
     try { getIO().to(companyId.toString()).emit('deliverynote:new', { deliveryNote: populated }); } catch {}
 
     res.status(201).json({ deliveryNote: populated });
@@ -44,7 +44,7 @@ export const createDeliveryNote = async (req, res, next) => {
   }
 };
 
-// ── GET /api/deliverynote ────────────────────────────────────
+// GET /api/deliverynote
 export const getDeliveryNotes = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
@@ -77,7 +77,7 @@ export const getDeliveryNotes = async (req, res, next) => {
   }
 };
 
-// ── GET /api/deliverynote/:id ────────────────────────────────
+// GET /api/deliverynote/:id
 export const getDeliveryNoteById = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
@@ -94,7 +94,7 @@ export const getDeliveryNoteById = async (req, res, next) => {
   }
 };
 
-// ── PUT /api/deliverynote/:id ────────────────────────────────
+// PUT /api/deliverynote/:id
 export const updateDeliveryNote = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
@@ -118,7 +118,7 @@ export const updateDeliveryNote = async (req, res, next) => {
   }
 };
 
-// ── DELETE /api/deliverynote/:id ─────────────────────────────
+// DELETE /api/deliverynote/:id
 export const deleteDeliveryNote = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
