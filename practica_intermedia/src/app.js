@@ -2,6 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import mongoSanitize from 'express-mongo-sanitize';
 import indexRouter from './routes/index.js';
 import userRoutes from './routes/user.routes.js';
 import clientRoutes from './routes/client.routes.js';
@@ -15,10 +16,10 @@ import { initSocket } from './socket/index.js';
 const app = express();
 const httpServer = createServer(app);
 
-// SOCKET.IO
+// Socket.IO
 initSocket(httpServer);
 
-// SEGURIDAD
+// Seguridad
 app.use(helmet());
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -26,26 +27,29 @@ app.use(rateLimit({
   message: { message: 'Demasiadas peticiones, inténtalo más tarde' },
 }));
 
-// PARSERS
+// Parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// SWAGGER
+// Sanitización NoSQL — previene inyección con operadores MongoDB ($gt, $where...)
+app.use(mongoSanitize({ sanitizeObjects: ['body', 'params'] }));
+
+// Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// RUTAS
+// Rutas
 app.use('/api', indexRouter);
 app.use('/api/user', userRoutes);
 app.use('/api/client', clientRoutes);
 app.use('/api/project', projectRoutes);
 app.use('/api/deliverynote', deliveryNoteRoutes);
 
-// 404: NO ENCONTRADO
+// 404
 app.use((req, res) => {
   res.status(404).json({ message: 'Ruta no encontrada' });
 });
 
-// MANEJO DE ERRORES
+// Error handler centralizado
 app.use(errorHandler);
 
 export { app, httpServer };
