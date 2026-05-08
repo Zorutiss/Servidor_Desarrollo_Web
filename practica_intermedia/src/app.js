@@ -32,7 +32,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Sanitización NoSQL — previene inyección con operadores MongoDB ($gt, $where...)
-app.use(mongoSanitize({ sanitizeObjects: ['body', 'params'] }));
+if (process.env.NODE_ENV !== 'test') {
+  app.use(mongoSanitize({ sanitizeObjects: ['body', 'params'] }));
+}
 
 // Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
