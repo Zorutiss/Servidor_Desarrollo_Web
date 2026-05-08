@@ -22,10 +22,18 @@ export const signDeliveryNote = async (req, res, next) => {
     });
 
     if (!note) return next(AppError.notFound('Albarán no encontrado'));
+
+    // Control de propiedad: solo el creador o un admin puede firmar
+    const isOwner = note.user.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+    if (!isOwner && !isAdmin) {
+      return next(AppError.forbidden('Solo el creador o un admin puede firmar este albarán'));
+    }
+
     if (note.signed) return next(AppError.badRequest('El albarán ya está firmado'));
     if (!req.file) return next(AppError.badRequest('No se ha subido ninguna imagen de firma'));
 
-    // SUBIR FIRMA A CLOUDINARY
+    // Subir firma a Cloudinary
     const signatureUrl = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         { folder: 'bildyapp/signatures', public_id: `firma_${note._id}`, resource_type: 'image' },
@@ -48,7 +56,7 @@ export const signDeliveryNote = async (req, res, next) => {
     note.pdfUrl = pdfUrl;
     await note.save();
 
-    // NOTIFICAR A TODOS LOS USUARIOS DE LA COMPAÑIA
+    // Notificar en tiempo real a todos los usuarios de la compañía
     try { getIO().to(companyId.toString()).emit('deliverynote:signed', { deliveryNoteId: note._id, pdfUrl }); } catch {}
 
     res.json({
@@ -66,7 +74,7 @@ export const signDeliveryNote = async (req, res, next) => {
   }
 };
 
-// GET /api/deliverynote/:id/pdf 
+// GET /api/deliverynote/:id/pdf
 export const getDeliveryNotePDF = async (req, res, next) => {
   try {
     const companyId = req.user.company?._id || req.user.company;
